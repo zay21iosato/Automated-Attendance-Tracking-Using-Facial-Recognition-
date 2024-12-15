@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration</title>
+    <link rel="stylesheet" href="../CSS/studentRegister.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase.js"></script>
+    <script>
+        // Your web app's Firebase configuration
+        var firebaseConfig = {
+            apiKey: "AIzaSyAO4guh5BpiR0rc5mS3WH0A1h2zxAPKn1M",
+            authDomain: "event-attendance-5457e.firebaseapp.com",
+            databaseURL: "https://event-attendance-5457e-default-rtdb.firebaseio.com",
+            projectId: "event-attendance-5457e",
+            storageBucket: "gs://event-attendance-5457e.appspot.com",
+            messagingSenderId: "644049506339",
+            appId: "1:644049506339:web:b876160b0648885c7a6196",
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        var storageRef = firebase.storage().ref();
+        var databaseRef = firebase.database().ref();
+        function registerStudent() {
+            var fullName = document.getElementById('fullName').value;
+            var section = document.getElementById('section').value;
+            var strand = document.getElementById('strand').value;
+            var studentId = document.getElementById('studentId').value;
+            var fileInput = document.getElementById('fileInput');
+            var files = fileInput.files;
+            if (files.length > 0 && files.length <= 20) {
+                var filesUploaded = 0;
+                var filesFailed = 0;
+                var filesNames = [];
+                for (var i = 0; i < files.length; i++) {
+                    var file = files[i];
+                    var fileRef = storageRef.child(`images/${fullName}_captured_image_${i+1}.jpg`);
+                    fileRef.put(file).then(function(snapshot) {
+                        console.log('Uploaded a blob or file!');
+                        snapshot.ref.getDownloadURL().then(function(downloadURL) {
+                            console.log('File available at', downloadURL);
+                            filesUploaded++;
+                            filesNames.push(downloadURL);
+                            if (filesUploaded + filesFailed === files.length) {
+                                // Save credentials to Realtime Database
+                                databaseRef.child('students').child(studentId).set({
+                                    fullName: fullName,
+                                    section: section,
+                                    strand: strand,
+                                    studentId: studentId,
+                                    imageFiles: filesNames
+                                }).then(function() {
+                                    console.log('Student credentials saved to Realtime Database');
+                                    Swal.fire('Registered', 'Student has been registered successfully', 'success');
+                                    clearFormFields();
+                                }).catch(function(error) {
+                                    console.error('Error saving student credentials:', error);
+                                    Swal.fire('Error', 'Failed to save student credentials', 'error');
+                                });
+                            }
+                        });
+                    }).catch(function(error) {
+                        console.error('Error uploading file:', error);
+                        filesFailed++;
+                        if (filesUploaded + filesFailed === files.length) {
+                            Swal.fire('Error', 'Failed to upload some files', 'error');
+                        }
+                    });
+                }
+                // Show the selected file name
+                if (files.length > 0) {
+                    document.getElementById('fileSelected').innerText = files[0].name;
+                } else {
+                    document.getElementById('fileSelected').innerText = 'No file selected';
+                }
+            } else {
+                Swal.fire('Error', 'Please attach between 5 and 20 files', 'error');
+            }
+        }
+        function attachFile() {
+            document.getElementById('fileInput').click();
+        }
+        function takePicture() {
+            window.location.href = "takePic.html";
+        }
+        function updateFileName() {
+            var fileInput = document.getElementById('fileInput');
+            var files = fileInput.files;
+            if (files.length > 0) {
+                document.getElementById('fileSelected').innerText = files[0].name;
+            } else {
+                document.getElementById('fileSelected').innerText = 'No file selected';
+            }
+        }
+        function clearFormFields() {
+            document.getElementById('fullName').value = '';
+            document.getElementById('section').value = '';
+            document.getElementById('strand').value = '';
+            document.getElementById('studentId').value = '';
+            fileInput.value = ''; // Clear the file input value
+        }
+        document.getElementById('fileInput').addEventListener('change', updateFileName);
+    </script>
+</head>
+<body>
+    <button class="back-btn" onclick="location.href='Home.html'">Back</button>
+    <div class="container">
+        <h1>Student Registration</h1>
+        <form id="registrationForm">
+            <div class="form-group">
+                <label for="fullName">Full Name:</label>
+                <input type="text" id="fullName" name="fullName" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="section">Section:</label>
+                <input type="text" id="section" name="section" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="strand">Strand:</label>
+                <select id="strand" name="strand" required>
+                    <option value="">Select Strand</option>
+                    <option value="STEM">STEM</option>
+                    <option value="Arts & Design" >Arts & Design</option>
+                    <option value="ABM">ABM</option>
+                    <option value="HUMSS">HUMSS</option>
+                    <option value="GAS">GAS</option>
+                    <option value="TVL-ICT">TVL - ICT</option>
+                    <option value="TVL-HE">TVL - HE</option>
+                    <option value="TVL-IA">TVL - Industrial Arts</option>
+                    <option value="TVL - Travel Services">TVL - Travel Services</option>
+                    <option value="TVL - Fashion Design">TVL - Fashion Design</option>
+
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="studentId">Student ID:</label>
+                <input type="text" id="studentId" name="studentId" required>
+            </div>
+            
+            <div class="file-upload">
+                <input type="file" id="fileInput" style="display: none;" multiple />
+                <button type="button" class="btn" onclick="attachFile()">Attach Files</button>
+                <button type="button" class="btn" onclick="takePicture()">Take Picture</button>
+                <br>
+                <br>
+                <br>
+                <span id="fileSelected">No file selected</span>
+            </div>
+            <br>
+            <button type="button" class="btn" onclick="registerStudent()">Register</button>
+        </form>
+    </div>
+</body>
+</html>

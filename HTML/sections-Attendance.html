@@ -1,0 +1,78 @@
+<!-- attendance.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../CSS/attendanceSections.css">
+    <title>Attendance Section Selection</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Select Attendance Section</h1>
+        <div class="strand-selection">
+            <select id="strand-select" onchange="showSections(this.value)">
+                <option value="">Select Strand</option>
+                <option value="STEM">STEM</option>
+                <option value="Arts & Design">Arts & Design</option>
+                <option value="ABM">ABM</option>
+                <option value="HUMSS">HUMSS</option>
+                <option value="GAS">GAS</option>
+                <option value="TVL-ICT">TVL - ICT</option>
+                <option value="TVL-HE">TVL - HE</option>
+                <option value="TVL-IA">TVL - Industrial Arts</option>
+                <option value="TVL - Travel Services">TVL - Travel Services</option>
+                <option value="TVL - Fashion Design">TVL - Fashion Design</option>
+            </select>
+        </div>
+        <div class="button-group" id="section-buttons">
+            <!-- Sections will be dynamically added here -->
+        </div>
+    </div>
+    <script>
+        function showSections(strand) {
+            const sectionButtons = document.getElementById('section-buttons');
+            sectionButtons.innerHTML = ''; // Clear existing buttons
+            let sections = [];
+            switch (strand) {
+                case "STEM":
+                    sections = ["", ""];
+                    break;
+                case "Arts & Design":
+                    sections = ["", ""];
+                    break;
+                case "ABM":
+                    sections = [""];
+                    break;
+                case "HUMSS":
+                    sections = ["", ""];
+                    break;
+                case "GAS":
+                    sections = ["", ""];
+                    break;
+                case "TVL-ICT":
+                    sections = ["12-Resilience", "12-Optimism", "11-Serenity", "11-Diversity", "11-Creativity"];
+                    break;
+                case "TVL-HE":
+                    sections = ["", ""];
+                    break;
+                case "TVL-IA":
+                    sections = ["", ""];
+                    break;
+                case "TVL - Travel Services":
+                    sections = ["", ""];
+                    break;
+                case "TVL - Fashion Design":
+                    sections = ["", ""];
+                    break;
+            }
+            sections.forEach(section => {
+                const button = document.createElement('button');
+                button.classList.add('section-button');
+                button.textContent = section;
+                sectionButtons.appendChild(button);
+            });
+        }
+    </script>
+</body>
+</html>
